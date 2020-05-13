@@ -78,6 +78,6 @@ def addanswer(request, question_id):
             return redirect("../")
             
 
-        return render(request, 'polls/addanswer.html', {'form': form})
+        return render(request, 'polls/addanswer.html', {'form': form, 'question':question})
         
         
