@@ -1,12 +1,12 @@
 from django.http import HttpResponseRedirect
-from django.shortcuts import get_object_or_404, render
+from django.shortcuts import get_object_or_404, render, redirect
 from django.urls import reverse
 from django.views import generic
 from django.views.generic import CreateView
 from django.utils import timezone
 
 from .models import Choice, Question
-from .forms import PollForm
+from .forms import PollForm, PollAnswerForm
 
 
 class IndexView(generic.ListView):
@@ -46,15 +46,38 @@ def vote(request, question_id):
         return HttpResponseRedirect(reverse('polls:results', args=(question.id,)))
 
 
-
+def results(request, question_id):
+    question = get_object_or_404(Question, pk=question_id)
+    return render(request, 'polls/results.html', {'question': question})
 
 def addpoll(request):
-    
-    
+        
+        form = PollForm(request.GET)
+        if request.method == "POST":
         # create a form instance and populate it with data from the request:
-        form = PollForm(request.POST or None)
+            form = PollForm(request.POST or None)
         # check whether it's valid:
         if form.is_valid():
-            form.save()
+            Question.objects.create(**form.cleaned_data)
+            return redirect("../")
+            
 
         return render(request, 'polls/addpoll.html', {'form': form})
+
+def addanswer(request, question_id):
+        question = get_object_or_404(Question, id=question_id)
+        form = PollAnswerForm(request.GET)
+        if request.method == "POST":
+        # create a form instance and populate it with data from the request:
+            form = PollAnswerForm(request.POST or None)
+        # check whether it's valid:
+        if form.is_valid():
+            new_choice = form.save(commit=False)
+            new_choice.question = question
+            new_choice.save()
+            return redirect("../")
+            
+
+        return render(request, 'polls/addanswer.html', {'form': form})
+        
+        

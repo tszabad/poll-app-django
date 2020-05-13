@@ -24,6 +24,7 @@
     <label for="choice{{ forloop.counter }}">{{ choice.choice_text }}</label><br>
 {% endfor %}
 <input type="submit" value="Vote" class="btn">
+<a class="save btn btn-default mb-12" href="{% url 'polls:addanswer' question.id %}">Add new answer</a>
 </form>
 
 </div>
