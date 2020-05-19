@@ -1,4 +1,4 @@
-from django.http import HttpResponseRedirect
+from django.http import HttpResponseRedirect, JsonResponse
 from django.shortcuts import get_object_or_404, render, redirect
 from django.urls import reverse
 from django.views import generic
@@ -42,13 +42,13 @@ def vote(request, question_id):
     else:
         selected_choice.votes += 1
         selected_choice.save()
-       
+    
         return HttpResponseRedirect(reverse('polls:results', args=(question.id,)))
 
 
 def results(request, question_id):
-    question = get_object_or_404(Question, pk=question_id)
-    return render(request, 'polls/results.html', {'question': question})
+    question = get_object_or_404(Question, pk=question_id)   
+    return render(request, 'polls/results.html', {'question': question} )
 
 def addpoll(request):
         
@@ -81,3 +81,11 @@ def addanswer(request, question_id):
         return render(request, 'polls/addanswer.html', {'form': form, 'question':question})
         
         
+def resultdata(request, obj):
+    question = Question.objects.get(id=obj)
+    choice_data = question.choice_set.all()
+   
+    data = []
+    for choice in choice_data:
+        data.append({choice.choice_text : choice.votes})
+    return JsonResponse(data, safe=False)
