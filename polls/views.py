@@ -8,7 +8,8 @@ from django.utils import timezone
 from .models import Choice, Question
 from .forms import PollForm, PollAnswerForm
 
-
+class HomeView(generic.ListView):
+    template_name = 'polls/home.html'
 class IndexView(generic.ListView):
     template_name = 'polls/index.html'
     context_object_name = 'latest_question_list'
