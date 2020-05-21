@@ -19,6 +19,7 @@
 {% endfor %}
 <input type="submit" value="Vote" class="btn btn-primary">
 <a class=" btn btn-primary" href="{% url 'polls:addanswer' question.id %}">Add new answer</a>
+<a class=" btn btn-primary" href="{% url 'polls:results' question.id %}">See resutlts</a>
 </form>
 
 </div>
