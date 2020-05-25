@@ -9,19 +9,24 @@ from .models import Choice, Question
 from .forms import PollForm, PollAnswerForm
 
 def home (request):
-    return render(request,  'polls/home.html')
+    question = Question.objects.all()
+    number = len(question)
+    return render(request,  'polls/home.html', {'number': number})
 class IndexView(generic.ListView):
+    
     template_name = 'polls/index.html'
     context_object_name = 'latest_question_list'
 
     def get_queryset(self):
+        
         """Return the last five published questions."""
         return Question.objects.filter(
         pub_date__lte=timezone.now()
-        ).order_by('-pub_date')[:5]
+        ).order_by('-pub_date')[:10]
 
 
 class DetailView(generic.DetailView):
+    
     model = Question
     template_name = 'polls/detail.html'
 

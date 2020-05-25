@@ -1,4 +1,4 @@
-{% extends 'polls/base.html' %}
+{% extends 'base.html' %}
 
 {% block content %}
     <div class="container">
@@ -9,7 +9,7 @@
 
 <h1>{{ question.question_text }}</h1>
 
-{% if error_message %}<p><strong>{{ error_message }}</strong></p>{% endif %}
+{% if error_message %}<p class="text-danger"><strong>{{ error_message }}</strong></p>{% endif %}
 
 <form action="{% url 'polls:vote' question.id %}" method="post">
 {% csrf_token %}

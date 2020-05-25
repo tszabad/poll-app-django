@@ -12,6 +12,11 @@
 <h4>We have already received <strong>{{number}}</strong> polls</h4>
 </div>
 <div class="row justify-content-center">
+    {% if request.user.is_authenticated %}
+    Hi {{request.user.username}}
+    {% endif %}
+</div>
+<div class="row justify-content-center">
 <a class="text-center" class=" btn btn-primary" href="/polls">Let's get started</a>
 </div>
 {% endblock %}
