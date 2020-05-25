@@ -6,7 +6,16 @@
         <div class="col-8">
           <h1 class="mt-2">Poll App</h1>
           <hr class="mt-0 mb-4">
-
+          {% if messages %}
+          {% for message in messages %}
+          <div {% if message.tags %} class="{{ message.tags }}"{% endif %} role="alert">
+           {{message}} 
+           <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+          </div>
+          {% endfor %}
+        {% endif %}
 <h1>{{ question.question_text }}</h1>
 
 {% if error_message %}<p class="text-danger"><strong>{{ error_message }}</strong></p>{% endif %}

@@ -4,14 +4,14 @@ from django.urls import reverse
 from django.views import generic
 from django.views.generic import CreateView
 from django.utils import timezone
+from django.contrib.auth.decorators import login_required
+from django.contrib import messages
+from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 
 from .models import Choice, Question
 from .forms import PollForm, PollAnswerForm
 
-def home (request):
-    question = Question.objects.all()
-    number = len(question)
-    return render(request,  'polls/home.html', {'number': number})
+
 class IndexView(generic.ListView):
     
     template_name = 'polls/index.html'
@@ -25,6 +25,7 @@ class IndexView(generic.ListView):
         ).order_by('-pub_date')[:10]
 
 
+
 class DetailView(generic.DetailView):
     
     model = Question
@@ -35,6 +36,7 @@ class ResultsView(generic.DetailView):
     model = Question
     template_name = 'polls/results.html'
 
+@login_required
 def vote(request, question_id):
     question = get_object_or_404(Question, pk=question_id)
     try:
@@ -51,11 +53,12 @@ def vote(request, question_id):
     
         return HttpResponseRedirect(reverse('polls:results', args=(question.id,)))
 
-
+@login_required
 def results(request, question_id):
     question = get_object_or_404(Question, pk=question_id)   
     return render(request, 'polls/results.html', {'question': question} )
 
+@login_required
 def addpoll(request):
         
         form = PollForm(request.GET)
@@ -65,11 +68,17 @@ def addpoll(request):
         # check whether it's valid:
         if form.is_valid():
             Question.objects.create(**form.cleaned_data)
+            messages.success(
+                            request,
+                            'Poll !',
+                            extra_tags='alert alert-success alert-dismissible fade show'
+                            )
             return redirect("../")
             
 
         return render(request, 'polls/addpoll.html', {'form': form})
 
+@login_required
 def addanswer(request, question_id):
         question = get_object_or_404(Question, id=question_id)
         form = PollAnswerForm(request.GET)
@@ -81,12 +90,17 @@ def addanswer(request, question_id):
             new_choice = form.save(commit=False)
             new_choice.question = question
             new_choice.save()
+            messages.success(
+                            request,
+                            'Choice added!',
+                            extra_tags='alert alert-success alert-dismissible fade show'
+                            )
             return redirect("../")
             
 
         return render(request, 'polls/addanswer.html', {'form': form, 'question':question})
         
-        
+@login_required        
 def resultdata(request, obj):
     question = Question.objects.get(id=obj)
     choice_data = question.choice_set.all()
