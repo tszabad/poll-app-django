@@ -1,3 +1,5 @@
+import datetime
+
 from django.http import HttpResponseRedirect, JsonResponse
 from django.shortcuts import get_object_or_404, render, redirect
 from django.urls import reverse
@@ -9,7 +11,7 @@ from django.contrib import messages
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 
 from .models import Choice, Question
-from .forms import PollForm, PollAnswerForm
+from .forms import PollForm, PollAnswerForm, EditQuestionForm
 
 
 class IndexView(generic.ListView):
@@ -67,12 +69,10 @@ def addpoll(request):
             form = PollForm(request.POST or None)
         # check whether it's valid:
         if form.is_valid():
-            Question.objects.create(**form.cleaned_data)
-            messages.success(
-                            request,
-                            'Poll !',
-                            extra_tags='alert alert-success alert-dismissible fade show'
-                            )
+            new_poll = form.save(commit=False)
+            new_poll.pub_date = datetime.datetime.now()
+            new_poll.owner = request.user
+            new_poll.save()
             return redirect("../")
             
 
@@ -81,6 +81,8 @@ def addpoll(request):
 @login_required
 def addanswer(request, question_id):
         question = get_object_or_404(Question, id=question_id)
+        if request.user != question.owner:
+           return redirect('/')
         form = PollAnswerForm(request.GET)
         if request.method == "POST":
         # create a form instance and populate it with data from the request:
@@ -109,3 +111,47 @@ def resultdata(request, obj):
     for choice in choice_data:
         data.append({choice.choice_text : choice.votes})
     return JsonResponse(data, safe=False)
+
+
+ 
+def edit_question(request, question_id):
+    question = get_object_or_404(Question, id=question_id)
+    if request.user != question.owner:
+        return redirect('/')
+
+    if request.method == "POST":
+        form = EditQuestionForm(request.POST, instance=question.choice)
+        if form.is_valid():
+            form.save()
+            messages.success(
+                            request,
+                            'Question Edit Successfully',
+                            extra_tags='alert alert-success alert-dismissible fade show'
+                            )
+        return redirect('/polls')
+    else:
+        form = EditQuestionForm(instance=question)
+
+    return render(request, 'polls/edit_question.html', {'form': form, 'question':question})
+
+def edit_choice(request, choice_id):
+    choice = get_object_or_404(Choice, id=choice_id)
+    question = get_object_or_404(Question, id=choice.question_id)
+    if request.user != question.owner:
+        return redirect('/')
+
+    if request.method == "POST":
+        form = PollAnswerForm(request.POST, instance=choice)
+        if form.is_valid():
+            form.save()
+            
+            messages.success(
+                            request,
+                            'Question Edit Successfully',
+                            extra_tags='alert alert-success alert-dismissible fade show'
+                            )
+        return redirect('/polls')
+    else:
+        form = PollAnswerForm(instance=choice)
+
+    return render(request, 'polls/edit_answer.html', {'form': form, 'choice':choice})

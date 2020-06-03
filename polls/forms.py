@@ -11,3 +11,11 @@ class PollAnswerForm(forms.ModelForm):
     class Meta:
         model = Choice
         fields = ["choice_text"]
+
+class EditQuestionForm(forms.ModelForm):
+
+    class Meta:
+        model = Question
+        fields = ["question_text"]
+        
+
