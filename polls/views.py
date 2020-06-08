@@ -120,7 +120,7 @@ def edit_question(request, question_id):
         return redirect('/')
 
     if request.method == "POST":
-        form = EditQuestionForm(request.POST, instance=question.choice)
+        form = EditQuestionForm(request.POST, instance=question)
         if form.is_valid():
             form.save()
             messages.success(
@@ -154,4 +154,40 @@ def edit_choice(request, choice_id):
     else:
         form = PollAnswerForm(instance=choice)
 
-    return render(request, 'polls/edit_answer.html', {'form': form, 'choice':choice})
+    return render(request, 'polls/addanswer.html', {'form':form, 'choice':choice})
+
+@login_required
+def delete_choice(request, choice_id):
+    choice = get_object_or_404(Choice, id=choice_id)
+    question = get_object_or_404(Question, id=choice.question_id)
+    if request.user != question.owner:
+        return redirect('/')
+
+    if request.method == "POST":
+        choice.delete()
+        messages.success(
+                        request,
+                        'Choice Deleted Successfully',
+                        extra_tags='alert alert-success alert-dismissible fade show'
+                        )
+        return redirect('/polls')
+
+    return render(request, 'polls/delete_choice_confirm.html', {'choice':choice})
+
+
+@login_required
+def delete_question(request, question_id):
+    question = get_object_or_404(Question, id=question_id)
+    if request.user != question.owner:
+        return redirect('/')
+
+    if request.method == "POST":
+        question.delete()
+        messages.success(
+                        request,
+                        'Poll Deleted Successfully',
+                        extra_tags='alert alert-success alert-dismissible fade show'
+                        )
+        return redirect('/polls')
+
+    return render(request, 'polls/delete_question_confirm.html', {'question':question})
