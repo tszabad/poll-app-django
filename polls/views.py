@@ -15,7 +15,7 @@ from .forms import PollForm, PollAnswerForm, EditQuestionForm
 
 
 class IndexView(generic.ListView):
-    
+    paginate_by = 5
     template_name = 'polls/index.html'
     context_object_name = 'latest_question_list'
 
